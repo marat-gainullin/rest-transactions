@@ -1,7 +1,6 @@
 # Rest transactions
 
-This is a coding training project. Once a new knowledge or quality improvement technique is added to my skillset
-this project is also improved as a traning code base.
+This is a coding training project.
 
 It is mostly about Spring MVC.
 
