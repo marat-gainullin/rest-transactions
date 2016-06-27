@@ -1,11 +1,15 @@
 package com.bearsoft.transactions.model;
 
+import com.bearsoft.transactions.exceptions.TransactionInCycleException;
+import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
 import java.util.Collection;
 
 /**
- * This class is a Spring service. Its logic can be moved to another environment
- * without changes.
+ * Transactions processor interface. Implementatinos of this interface should
+ * process <code>TransactionsStore</code> instances and contain logic that is
+ * separated from particular <code>TransactionsStore</code> implementation.
  *
+ * @see TransactionsStore
  * @author mg
  */
 public interface TransactionsProcessor {
@@ -27,6 +31,9 @@ public interface TransactionsProcessor {
      * @param aStore aStore <code>TransactionsStore</code> to process.
      * @param aId A root transaction id.
      * @return A deep sum amount.
+     * @throws TransactionNotFoundException
+     * @throws TransactionInCycleException
      */
-    double deepSum(TransactionsStore aStore, long aId);
+    double deepSum(TransactionsStore aStore, long aId)
+            throws TransactionNotFoundException, TransactionInCycleException;
 }

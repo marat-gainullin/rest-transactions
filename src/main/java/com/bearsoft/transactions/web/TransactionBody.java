@@ -3,22 +3,26 @@ package com.bearsoft.transactions.web;
 import com.bearsoft.transactions.model.Transaction;
 
 /**
- * This class is intended to be a transaction information container.
+ * This class is intended to be a transaction information container. Requests
+ * should contain fields like a 'parent_id', but we do not want to include such
+ * fields in <code>Transaction</code> class.
  *
+ * @see Transaction
  * @author mg
  */
 public class TransactionBody {
 
     /**
-     *
+     * A transaction's parent key. Property name is 'parent_id' according to the
+     * task :(.
      */
     private Long parent_id;
     /**
-     *
+     * A transaction's amount.
      */
     private double amount;
     /**
-     *
+     * A transaction's type.
      */
     private String type;
 
@@ -26,7 +30,9 @@ public class TransactionBody {
      * Creates an instanceof TransactionBody with information copied from a
      * Transaction instance.
      *
-     * @param aTransaction
+     * @param aTransaction A <code>Transaction</code> instance the wrapper is
+     * created for.
+     * @see Transaction
      */
     public TransactionBody(final Transaction aTransaction) {
         super();
@@ -43,7 +49,7 @@ public class TransactionBody {
     }
 
     /**
-     * Returns amount of the transaction.
+     * Transaction's amount getter.
      *
      * @return Amount from this transaction.
      */
@@ -52,7 +58,7 @@ public class TransactionBody {
     }
 
     /**
-     * Sets an amount.
+     * Transaction's amount setter.
      *
      * @param aValue Value of amount.
      */
@@ -61,7 +67,7 @@ public class TransactionBody {
     }
 
     /**
-     * Returns type of a transaction.
+     * Transaction's type getter.
      *
      * @return Type of a transaction.
      */
@@ -70,7 +76,7 @@ public class TransactionBody {
     }
 
     /**
-     * Sets type of the transaction.
+     * Transaction's type setter.
      *
      * @param aValue Type of the transaction.
      */
@@ -79,7 +85,7 @@ public class TransactionBody {
     }
 
     /**
-     * Returns parent_id of the transaction.
+     * Transaction's parent_id getter.
      *
      * @return parent_id of the transaction.
      */
@@ -88,7 +94,7 @@ public class TransactionBody {
     }
 
     /**
-     * Sets parent_id value from this transaction
+     * Transaction's parent_id setter.
      *
      * @param aValue parent_id value to setted.
      */
