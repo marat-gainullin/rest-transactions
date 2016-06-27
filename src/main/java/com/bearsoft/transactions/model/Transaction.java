@@ -47,20 +47,19 @@ public class Transaction {
     }
 
     /**
-     * Pakage private to avoid modifications by client code
+     * 
      *
-     * @param aChildren
+     * @param aChildren A children collection.
      */
-    void setChildren(Collection<Transaction> aChildren) {
+    public void setChildren(Collection<Transaction> aChildren) {
         children = aChildren;
     }
 
     /**
-     * Package private to avoid modifications by client code
      *
-     * @return raw children collection.
+     * @return A children collection.
      */
-    final Collection<Transaction> getChildren() {
+    public final Collection<Transaction> getChildren() {
         return children;
     }
 

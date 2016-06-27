@@ -5,7 +5,7 @@ import com.bearsoft.transactions.exceptions.TransactionInCycleException;
 import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
 import com.bearsoft.transactions.model.Transaction;
 import com.bearsoft.transactions.model.TransactionsProcessor;
-import com.bearsoft.transactions.services.TransactionsRepository;
+import com.bearsoft.transactions.model.TransactionsStore;
 import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,14 +28,15 @@ public class TransactionsController {
     /**
      * Inner class because of "sum" property. It should be something like
      * "OperationResult" and it should be a simple ordinary public class, but
-     * "sum" property can be used only for sum and so, i want to put it here as
+     * response sould be {sum: value} and so, i want to put it here as
      * inner class.
      */
-    public static class SumResult {
+    private static class SumResult {
 
         private final double sum;
 
         public SumResult(final double aValue) {
+            super();
             sum = aValue;
         }
 
@@ -46,10 +47,9 @@ public class TransactionsController {
     }
 
     @Autowired
-    /**
-     * may be the lifecycle will be changed by means of the task...
-     */
-    private TransactionsRepository transactions;
+    private TransactionsStore transactions;
+    @Autowired
+    private TransactionsProcessor processor ;
 
     @RequestMapping(value = "transaction/{transaction-id}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public final TransactionResult put(@PathVariable("transaction-id") final long aTransactionId, @RequestBody final TransactionBody aTransactionBody) {
@@ -73,12 +73,12 @@ public class TransactionsController {
 
     @RequestMapping(value = "types/{transaction-type}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public final Collection<Long> get(@PathVariable("transaction-type") final String aTransactionType) {
-        return TransactionsProcessor.collectIds(transactions, aTransactionType);
+        return processor.collectIds(transactions, aTransactionType);
     }
 
     @RequestMapping(value = "sum/{transaction-id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public final SumResult sum(@PathVariable("transaction-id") final long aTransactionId) {
-        return new SumResult(TransactionsProcessor.deepSum(transactions, aTransactionId));
+        return new SumResult(processor.deepSum(transactions, aTransactionId));
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

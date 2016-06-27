@@ -2,7 +2,7 @@
 
 This is a coding training project.
 
-It is mostly about Spring MVC.
+It is most about Spring MVC.
 
 ## Asymptotic estimates of transactions service operations
 

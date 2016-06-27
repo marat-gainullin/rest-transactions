@@ -1,7 +1,8 @@
 package com.bearsoft.transactions.functional;
 
 import com.bearsoft.transactions.model.Transaction;
-import com.bearsoft.transactions.model.TransactionsMemoryStore;
+import com.bearsoft.transactions.services.TransactionsMemoryStoreBean;
+import com.bearsoft.transactions.model.TransactionsStore;
 import java.util.Collection;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -17,7 +18,7 @@ public class TransactionsStoreTest {
 
     @Test
     public void sameTypeTest() {
-        TransactionsMemoryStore store = new TransactionsMemoryStore();
+        TransactionsStore store = new TransactionsMemoryStoreBean();
         for (long id = 0; id < TEST_TRANSACTIONS_COUNT; id++) {
             store.putIfAbsent(new Transaction(id, 5 * id, TEST_TRANSACTIONS_TYPE));
         }
@@ -32,7 +33,7 @@ public class TransactionsStoreTest {
 
     @Test
     public void variousTypesTest() {
-        TransactionsMemoryStore store = new TransactionsMemoryStore();
+        TransactionsStore store = new TransactionsMemoryStoreBean();
         for (long id = 0; id < TEST_TRANSACTIONS_COUNT; id++) {
             store.putIfAbsent(new Transaction(id, 5 * id, TEST_TRANSACTIONS_TYPE + id));
         }
@@ -45,7 +46,7 @@ public class TransactionsStoreTest {
 
     @Test
     public void deepAmountForwardTest() {
-        TransactionsMemoryStore store = new TransactionsMemoryStore();
+        TransactionsStore store = new TransactionsMemoryStoreBean();
         Transaction firstParent = new Transaction(0, 0, TEST_TRANSACTIONS_TYPE);
         store.putIfAbsent(firstParent);
         double expectedTotal = 0;
@@ -62,7 +63,7 @@ public class TransactionsStoreTest {
 
     @Test
     public void deepAmountBackwardTest() {
-        TransactionsMemoryStore store = new TransactionsMemoryStore();
+        TransactionsStore store = new TransactionsMemoryStoreBean();
         double expectedTotal = 0;
         for (long id = TEST_TRANSACTIONS_COUNT - 1; id > 0; id--) {
             double amount = 5 * id;

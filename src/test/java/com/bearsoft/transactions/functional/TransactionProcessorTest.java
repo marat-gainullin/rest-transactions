@@ -1,10 +1,10 @@
 package com.bearsoft.transactions.functional;
 
 import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
-import com.bearsoft.transactions.model.TransactionsMemoryStore;
+import com.bearsoft.transactions.services.TransactionsMemoryStoreBean;
 import com.bearsoft.transactions.model.TransactionsProcessor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.bearsoft.transactions.services.TransactionsProcessorBean;
+import com.bearsoft.transactions.model.TransactionsStore;
 import org.junit.Test;
 
 /**
@@ -13,15 +13,12 @@ import org.junit.Test;
  */
 public class TransactionProcessorTest {
 
-    @Test
+
+    @Test(expected = TransactionNotFoundException.class)
     public void notFoundTest() {
-        TransactionsMemoryStore store = new TransactionsMemoryStore();
-        try {
-            TransactionsProcessor.deepSum(store, 1L);
-            fail("TransactionNotFoundException expected");
-        } catch (TransactionNotFoundException ex) {
-            assertEquals(1L, ex.getId());
-        }
+        TransactionsProcessor processor = new TransactionsProcessorBean();
+        TransactionsStore store = new TransactionsMemoryStoreBean();
+        processor.deepSum(store, 1L);
     }
 
 }

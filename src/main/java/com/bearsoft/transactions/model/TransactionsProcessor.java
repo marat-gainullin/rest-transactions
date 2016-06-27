@@ -1,37 +1,32 @@
 package com.bearsoft.transactions.model;
 
-import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
- * This class may be Spring service, but it is static and therefore stateless
- * and its logic can be moved to another environment without changes.
+ * This class is a Spring service. Its logic can be moved to another environment
+ * without changes.
  *
  * @author mg
  */
-public class TransactionsProcessor {
+public interface TransactionsProcessor {
 
-    public static Collection<Long> collectIds(TransactionsMemoryStore aStore, String aType) {
-        Collection<Transaction> typesTransactions = aStore.get(aType);
-        if (typesTransactions != null) {
-            List<Long> ids = new LinkedList<>();
-            typesTransactions.stream().forEach((transaction) -> {
-                ids.add(transaction.getId());
-            });
-            return ids;
-        } else {
-            return new LinkedList<>();// provide client code with an empty list
-        }
-    }
+    /**
+     * Collects ids of transactions of a <code>aType</code> type. Provides a
+     * client code with an empty list if none transactions matched.
+     *
+     * @param aStore <code>TransactionsStore</code> to process.
+     * @param aType A transactions type.
+     * @return A collection of ids of the transactions with <code>aType</code>
+     * type.
+     */
+    Collection<Long> collectIds(TransactionsStore aStore, String aType);
 
-    public static double deepSum(TransactionsMemoryStore aStore, long aId) {
-        Transaction parent = aStore.get(aId);
-        if (parent != null) {
-            return aStore.deepAmount(parent);
-        } else {
-            throw new TransactionNotFoundException(aId);
-        }
-    }
+    /**
+     * Calculates a deep sum of transactions' amounts.
+     *
+     * @param aStore aStore <code>TransactionsStore</code> to process.
+     * @param aId A root transaction id.
+     * @return A deep sum amount.
+     */
+    double deepSum(TransactionsStore aStore, long aId);
 }

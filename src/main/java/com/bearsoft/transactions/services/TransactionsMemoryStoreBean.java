@@ -1,6 +1,8 @@
-package com.bearsoft.transactions.model;
+package com.bearsoft.transactions.services;
 
 import com.bearsoft.transactions.exceptions.TransactionInCycleException;
+import com.bearsoft.transactions.model.Transaction;
+import com.bearsoft.transactions.model.TransactionsStore;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -9,16 +11,16 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import javax.validation.constraints.NotNull;
+import org.springframework.stereotype.Repository;
 
 /**
  * This class is pure storage and it can be moved to anoter environment without
- * changes. If there will be another storage types i.e. database, files etc,
- * than Transactions class should be transformed into iterface and multiple
- * implementations should be created.
+ * changes.
  *
  * @author mg
  */
-public class TransactionsMemoryStore implements TransactionsStore {
+@Repository
+public class TransactionsMemoryStoreBean implements TransactionsStore {
 
     private final Map<Long, Transaction> transactionsById = new ConcurrentSkipListMap<>();// log(n) of get() and put()
     private final Map<String, Collection<Transaction>> transactionsByType = new ConcurrentSkipListMap<>();// log(n) of get() and put()
