@@ -74,4 +74,40 @@ public class TransactionsControllerAPITest extends AbstractJUnit4SpringContextTe
                 .andExpect(content().json("[4]"));
     }
 
+    @Test
+    public void sumTest() throws Exception {
+        mockMvc.perform(put("/transaction/{transaction-id}", 5)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"amount\": 3000, \"type\": \"washing\" }")
+        ).andExpect(status().isOk());
+        mockMvc.perform(put("/transaction/{transaction-id}", 6)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"amount\": 7000, \"type\": \"washing\" }")
+        ).andExpect(status().isOk());
+        mockMvc.perform(get("/sum/{transaction-id}", 5))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("{sum: 3000}"));
+        mockMvc.perform(get("/sum/{transaction-id}", 6))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("{sum: 7000}"));
+    }
+    
+    @Test
+    public void deepSumTest() throws Exception {
+        mockMvc.perform(put("/transaction/{transaction-id}", 7)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"amount\": 3000, \"type\": \"washing\" }")
+        ).andExpect(status().isOk());
+        mockMvc.perform(put("/transaction/{transaction-id}", 8)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"amount\": 2000, \"type\": \"washing\", \"parent_id\": 7}")
+        ).andExpect(status().isOk());
+        mockMvc.perform(get("/sum/{transaction-id}", 7))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("{sum: 5000}"));
+    }
+
 }
