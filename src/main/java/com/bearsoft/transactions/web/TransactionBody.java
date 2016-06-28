@@ -27,8 +27,8 @@ public class TransactionBody {
     private String type;
 
     /**
-     * Creates an instanceof TransactionBody with information copied from a
-     * Transaction instance.
+     * Creates an instance of <code>TransactionBody</code> with information
+     * copied from a <code>Transaction</code> instance.
      *
      * @param aTransaction A <code>Transaction</code> instance the wrapper is
      * created for.
@@ -85,7 +85,8 @@ public class TransactionBody {
     }
 
     /**
-     * Transaction's parent_id getter.
+     * Transaction's parent_id getter. Method name is 'getParent_id' according
+     * to the task :(.
      *
      * @return parent_id of the transaction.
      */
@@ -94,7 +95,8 @@ public class TransactionBody {
     }
 
     /**
-     * Transaction's parent_id setter.
+     * Transaction's parent_id setter. Method name is 'setParent_id' according
+     * to the task :(.
      *
      * @param aValue parent_id value to setted.
      */

@@ -3,9 +3,9 @@ package com.bearsoft.transactions.model;
 import java.util.Collection;
 
 /**
- * This class is pure model and it can be moved to anoter environment without
- * changes. It is immuable because of nature of the task and to avoid multicore
- * issues.
+ * This class is pure model and it can be moved to another environment without
+ * changes. It is immutable because of nature of the task and to avoid multi
+ * core issues.
  *
  * @author mg
  */

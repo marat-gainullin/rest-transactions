@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
 
 /**
- * This class is memory storage ..
+ * This class is memory storage.
  *
  * @author mg
  */
@@ -87,9 +87,11 @@ public class TransactionsMemoryStoreBean implements TransactionsStore {
     @Override
     public final Collection<Transaction> get(final String aType) {
         Collection<Transaction> byType = transactionsByType.get(aType);
-        return byType != null
-                ? Collections.unmodifiableCollection(byType)
-                : null;
+        if (byType != null) {
+            return Collections.unmodifiableCollection(byType);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -105,15 +107,18 @@ public class TransactionsMemoryStoreBean implements TransactionsStore {
     }
 
     /**
-     * Walks through a transaction subtree and reduces transaction.
+     * Walks through a transaction subtree and reduces transactions.
      *
+     * @param <U> Type of result of the operation.
      * @param aParent The root transaction of processed subtree.
      * @param aMetTransactions A set of met transaction for cycles detection.
+     * @param aIdentity The start value of the operation.
+     * @param aAccumulator Accumulator function.
      * @return A reduced value of transactions subtree.
      * @throws TransactionInCycleException
      */
-    private <U> U walk(@NotNull final Transaction aParent, final U aIdentity, 
-            final BiFunction<Transaction, U, U> aHandler,
+    private <U> U walk(@NotNull final Transaction aParent, final U aIdentity,
+            final BiFunction<Transaction, U, U> aAccumulator,
             final Set<Long> aMetTransactions)
             throws TransactionInCycleException {
         // It seems it is race condition.
@@ -132,10 +137,11 @@ public class TransactionsMemoryStoreBean implements TransactionsStore {
                     aParent.setChildren(children);
                 }
             }
-            U result = aHandler.apply(aParent, aIdentity);
+            U result = aAccumulator.apply(aParent, aIdentity);
             if (children != null) {
                 for (Transaction aChild : children) {
-                    result = walk(aChild, result, aHandler, aMetTransactions);
+                    result = walk(aChild, result,
+                            aAccumulator, aMetTransactions);
                 }
             }
             return result;
