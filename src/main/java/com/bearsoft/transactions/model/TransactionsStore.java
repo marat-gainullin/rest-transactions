@@ -48,6 +48,6 @@ public interface TransactionsStore {
      * @return A transacaction that already present in the storage. If none,
      * than the return value is null.
      */
-    Transaction putIfAbsent(final long aId, Transaction aTransaction);
+    Transaction putIfAbsent(long aId, Transaction aTransaction);
 
 }
