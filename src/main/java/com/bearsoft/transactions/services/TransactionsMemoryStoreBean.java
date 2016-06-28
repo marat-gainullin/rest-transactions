@@ -1,6 +1,7 @@
 package com.bearsoft.transactions.services;
 
 import com.bearsoft.transactions.exceptions.TransactionInCycleException;
+import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
 import com.bearsoft.transactions.model.Transaction;
 import com.bearsoft.transactions.model.TransactionsStore;
 import java.util.Collection;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
 
@@ -91,24 +93,34 @@ public class TransactionsMemoryStoreBean implements TransactionsStore {
     }
 
     @Override
-    public final double deepAmount(final Transaction aParent)
-            throws TransactionInCycleException {
-        return deepAmount(aParent, new HashSet<>());
+    public final <U> U reduce(final long aRootId, final U aIdentity,
+            @NotNull final BiFunction<Transaction, U, U> aHandler)
+            throws TransactionInCycleException, TransactionNotFoundException {
+        Transaction aParent = transactionsById.get(aRootId);
+        if (aParent != null) {
+            return walk(aParent, aIdentity, aHandler, new HashSet<>());
+        } else {
+            throw new TransactionNotFoundException(aRootId);
+        }
     }
 
     /**
-     * Calculates amouts sum recursively across transactions subtree with
-     * <code>aParent</code> root transaction including root transaction's
-     * amount.
+     * Walks through a transaction subtree and reduces transaction.
      *
      * @param aParent The root transaction of processed subtree.
      * @param aMetTransactions A set of met transaction for cycles detection.
-     * @return A amounts sum of transactions subtree.
+     * @return A reduced value of transactions subtree.
      * @throws TransactionInCycleException
      */
-    private double deepAmount(@NotNull final Transaction aParent,
+    private <U> U walk(@NotNull final Transaction aParent, final U aIdentity, 
+            final BiFunction<Transaction, U, U> aHandler,
             final Set<Long> aMetTransactions)
             throws TransactionInCycleException {
+        // It seems it is race condition.
+        // We rely here on store conract, wich says, that
+        // this method on a particular transaction id is called
+        // only after ther trasnaction is added, e.g. within a callback of
+        // response on transaction addition request.
         if (!aMetTransactions.contains(aParent.getId())) {
             aMetTransactions.add(aParent.getId());
             // put() provides us with an identity for
@@ -120,13 +132,13 @@ public class TransactionsMemoryStoreBean implements TransactionsStore {
                     aParent.setChildren(children);
                 }
             }
-            double sum = aParent.getAmount();
+            U result = aHandler.apply(aParent, aIdentity);
             if (children != null) {
-                for (Transaction child : children) {
-                    sum += deepAmount(child, aMetTransactions);
+                for (Transaction aChild : children) {
+                    result = walk(aChild, result, aHandler, aMetTransactions);
                 }
             }
-            return sum;
+            return result;
         } else {
             throw new TransactionInCycleException(aParent.getId());
         }

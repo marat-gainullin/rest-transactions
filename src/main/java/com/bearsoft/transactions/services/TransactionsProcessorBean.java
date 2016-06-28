@@ -60,11 +60,9 @@ public class TransactionsProcessorBean implements TransactionsProcessor {
     @Override
     public final double deepSum(final TransactionsStore aStore, final long aId)
             throws TransactionNotFoundException, TransactionInCycleException {
-        Transaction parent = aStore.get(aId);
-        if (parent != null) {
-            return aStore.deepAmount(parent);
-        } else {
-            throw new TransactionNotFoundException(aId);
-        }
+        return aStore.reduce(aId, 0d,
+                (Transaction aTransaction, Double aDeepAmount) -> {
+                    return aDeepAmount + aTransaction.getAmount();
+                });
     }
 }

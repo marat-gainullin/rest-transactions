@@ -5,7 +5,7 @@ import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
 import java.util.Collection;
 
 /**
- * Transactions processor interface. Implementatinos of this interface should
+ * Transactions processor interface. Implementations of this interface should
  * process <code>TransactionsStore</code> instances and contain logic that is
  * separated from particular <code>TransactionsStore</code> implementation.
  *

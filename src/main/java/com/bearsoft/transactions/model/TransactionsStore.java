@@ -1,7 +1,10 @@
 package com.bearsoft.transactions.model;
 
 import com.bearsoft.transactions.exceptions.TransactionInCycleException;
+import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
 import java.util.Collection;
+import java.util.function.BiFunction;
+import javax.validation.constraints.NotNull;
 
 /**
  * Transactions store interface. Implementations of this interface should
@@ -13,14 +16,19 @@ import java.util.Collection;
 public interface TransactionsStore {
 
     /**
-     * Calcuates amount of transactions subtree recursively.
+     * Traverses transactions subtree recursively.
      *
-     * @param aParent A root transaction of processed subtree.
-     * @return An amount value calculated as deep sum including
-     * <code>aParent</code> transaction amount.
+     * @param <U> Type of result of the operation.
+     * @param aRootId A root transaction key.
+     * @param aIdentity The start value of the operation.
+     * @param aAccumulator Accumulator function.
+     * @return Result of the operation.
      * @throws TransactionInCycleException
+     * @throws TransactionNotFoundException
      */
-    double deepAmount(Transaction aParent) throws TransactionInCycleException;
+    <U> U reduce(final long aRootId, U aIdentity,
+            @NotNull BiFunction<Transaction, U, U> aAccumulator)
+            throws TransactionInCycleException, TransactionNotFoundException;
 
     /**
      * Retrieves a transaction by key.

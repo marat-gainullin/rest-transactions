@@ -1,10 +1,12 @@
 package com.bearsoft.transactions.functional;
 
 import com.bearsoft.transactions.exceptions.TransactionInCycleException;
+import com.bearsoft.transactions.exceptions.TransactionNotFoundException;
 import com.bearsoft.transactions.model.Transaction;
 import com.bearsoft.transactions.services.TransactionsMemoryStoreBean;
 import com.bearsoft.transactions.model.TransactionsStore;
 import java.util.Collection;
+import java.util.function.BiFunction;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -21,17 +23,32 @@ public class TransactionsStoreTest {
      */
     private static final int TEST_TRANSACTIONS_COUNT = 50;
     /**
-     * Transactions type to be used across thw whole test suite.
+     * Transactions type to be used across the whole test suite.
      */
     private static final String TEST_TRANSACTIONS_TYPE = "fruits";
+
+    /**
+     * Accumulator for deep amounts sum.
+     */
+    private static final BiFunction<Transaction, Double, Double> AMOUNT_ACCUM
+            = (Transaction aTransaction, Double aDeepAmount) -> {
+                return aDeepAmount + aTransaction.getAmount();
+            };
+
+    /**
+     * Double tolerance for tests' asserts.
+     */
+    private static final double TOLERANCE = 1e-12d;
 
     /**
      * Checks get by type correctness for several transaction of the same type.
      *
      * @throws TransactionInCycleException
+     * @throws TransactionNotFoundException
      */
     @Test
-    public void sameTypeTest() throws TransactionInCycleException {
+    public void sameTypeTest() throws TransactionInCycleException,
+            TransactionNotFoundException {
         TransactionsStore store = new TransactionsMemoryStoreBean();
         for (long id = 0; id < TEST_TRANSACTIONS_COUNT; id++) {
             store.putIfAbsent(id,
@@ -45,8 +62,8 @@ public class TransactionsStoreTest {
             // Since test amounts are integers in fact
             assertEquals(id * 5, (long) store.get(id).getAmount());
             assertEquals(
-                    (long) store.get(id).getAmount(),
-                    (long) store.deepAmount(store.get(id)));
+                    store.get(id).getAmount(),
+                    store.reduce(id, 0d, AMOUNT_ACCUM), TOLERANCE);
         }
     }
 
@@ -74,9 +91,11 @@ public class TransactionsStoreTest {
      * constructed from root to leaves.
      *
      * @throws TransactionInCycleException
+     * @throws TransactionNotFoundException
      */
     @Test
-    public void deepAmountForwardTest() throws TransactionInCycleException {
+    public void deepAmountForwardTest() throws TransactionInCycleException,
+            TransactionNotFoundException {
         TransactionsStore store = new TransactionsMemoryStoreBean();
         Transaction firstParent = new Transaction(0, 0, TEST_TRANSACTIONS_TYPE);
         store.putIfAbsent(0, firstParent);
@@ -88,10 +107,12 @@ public class TransactionsStoreTest {
                     new Transaction(id, amount,
                             TEST_TRANSACTIONS_TYPE, id - 1L));
         }
-        double totalWithoutCachedChildren = store.deepAmount(firstParent);
+        double totalWithoutCachedChildren = store.reduce(firstParent.getId(), 0d,
+                AMOUNT_ACCUM);
         // Since test amounts are integers in fact
         assertEquals((long) expectedTotal, (long) totalWithoutCachedChildren);
-        double totalWithCachedChildren = store.deepAmount(firstParent);
+        double totalWithCachedChildren = store.reduce(firstParent.getId(), 0d,
+                AMOUNT_ACCUM);
         // Since test amounts are integers in fact
         assertEquals((long) expectedTotal, (long) totalWithCachedChildren);
     }
@@ -101,9 +122,11 @@ public class TransactionsStoreTest {
      * constructed from leaves to root.
      *
      * @throws TransactionInCycleException
+     * @throws TransactionNotFoundException
      */
     @Test
-    public void deepAmountBackwardTest() throws TransactionInCycleException {
+    public void deepAmountBackwardTest() throws TransactionInCycleException,
+            TransactionNotFoundException {
         TransactionsStore store = new TransactionsMemoryStoreBean();
         double expectedTotal = 0;
         for (long id = TEST_TRANSACTIONS_COUNT - 1; id > 0; id--) {
@@ -115,10 +138,12 @@ public class TransactionsStoreTest {
         }
         Transaction firstParent = new Transaction(0, 0, TEST_TRANSACTIONS_TYPE);
         store.putIfAbsent(0, firstParent);
-        double totalWithoutCachedChildren = store.deepAmount(firstParent);
+        double totalWithoutCachedChildren = store.reduce(firstParent.getId(), 0d,
+                AMOUNT_ACCUM);
         // Since test amounts are integers in fact
         assertEquals((long) expectedTotal, (long) totalWithoutCachedChildren);
-        double totalWithCachedChildren = store.deepAmount(firstParent);
+        double totalWithCachedChildren = store.reduce(firstParent.getId(), 0d,
+                AMOUNT_ACCUM);
         // Since test amounts are integers in fact
         assertEquals((long) expectedTotal, (long) totalWithCachedChildren);
     }
