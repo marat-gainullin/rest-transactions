@@ -26,7 +26,7 @@ public interface TransactionsStore {
      * @throws TransactionInCycleException
      * @throws TransactionNotFoundException
      */
-    <U> U reduce(final long aRootId, U aIdentity,
+    <U> U reduce(long aRootId, U aIdentity,
             @NotNull BiFunction<Transaction, U, U> aAccumulator)
             throws TransactionInCycleException, TransactionNotFoundException;
 
